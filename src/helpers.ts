@@ -62,13 +62,18 @@ export async function applyToElement(
 export async function get_theme(root: CardMod): Promise<Styles> {
   if (!root.type) return null;
 
+  const hs = await hass();
+  if (!hs) return {};
+
   const el = root.parentElement ? root.parentElement : root;
-  const theme = window
+  let theme = window
     .getComputedStyle(el)
     .getPropertyValue("--card-mod-theme");
 
-  const hs = await hass();
-  if (!hs) return {};
+  // persist theme information as it sometimes simply gets lost in translation :-/
+  if (theme) window['--card-mod-theme'] = theme;
+  if (!theme) theme = window['--card-mod-theme'];
+
   const themes = hs?.themes.themes ?? {};
   if (!themes[theme]) return {};
 
